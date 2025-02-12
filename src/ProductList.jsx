@@ -1,10 +1,14 @@
 import React, { useState,useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
+import { useDispatch,useSelector } from 'react-redux';
+import { addItem } from './CartSlice';
 function ProductList() {
     const [showCart, setShowCart] = useState(false); 
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
-
+    const [addedToCart, setAddedToCart] = useState({}); 
+    const dispatch = useDispatch();
+    const cartItems = useSelector(state => state.cart.cartItems); // Get cart state from Redux
     const plantsArray = [
         {
             category: "Air Purifying Plants",
@@ -246,6 +250,20 @@ const handlePlantsClick = (e) => {
     e.preventDefault();
     setShowCart(false);
   };
+
+  const handleAddToCart = (product) => {
+    dispatch(addItem(product));
+    setAddedToCart([...addedToCart, product.id]);
+  };
+
+  useEffect(() => {
+    const updatedDisabledProducts = addedToCart.filter(productId => {
+      const item = cartItems.find(cartItem => cartItem.id === productId);
+      return item && item.quantity > 0; // Keep disabled only if quantity > 0
+    });
+    setAddedToCart(updatedDisabledProducts);
+  }, [cartItems]); // Run effect when cart updates
+  
     return (
         <div>
              <div className="navbar" style={styleObj}>
@@ -268,7 +286,18 @@ const handlePlantsClick = (e) => {
         </div>
         {!showCart? (
         <div className="product-grid">
-
+            <h2>{plantData.category}</h2>
+            <div className="grid">
+            {plantData.plants.map((plant, index) => (
+            <div key={index} className="product-card">
+                <img src={plant.image} alt={plant.name} className="product-image" />
+                <h3>{plant.name}</h3>
+                <p>{plant.description}</p>
+                <p className="product-cost">{plant.cost}</p>
+                <button  className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+            </div>
+            ))}
+      </div>
 
         </div>
  ) :  (
