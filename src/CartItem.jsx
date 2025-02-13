@@ -9,13 +9,19 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-   return cart.reduce((total, item) => total + item.cost * item.quantity, 0);
+   return cart.reduce((total, item) => total + parseFloat(item.cost.substring(1)) * item.quantity, 0);
   };
 
   const handleContinueShopping = (e) => {
-   onContinueShopping();
-  };
+     e.preventDefault(); // Check if event exists before calling preventDefault()
+     onContinueShopping(e);
+     console.log("Back to shop");
+    };
 
+
+  const calculateTotalQuantity = () => {
+    return cart.reduce((total, item) => total + item.quantity, 0);
+};
 
 
   const handleIncrement = (item) => {

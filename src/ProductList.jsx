@@ -6,7 +6,7 @@ import { addItem } from './CartSlice';
 function ProductList() {
     const [showCart, setShowCart] = useState(false); 
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
-    const [addedToCart, setAddedToCart] = useState({}); 
+    const [addedToCart, setAddedToCart] = useState([]); 
     const dispatch = useDispatch();
     const cartItems = useSelector(state => state.cart.cartItems); // Get cart state from Redux
     const plantsArray = [
@@ -246,23 +246,26 @@ const handlePlantsClick = (e) => {
     setShowCart(false); // Hide the cart when navigating to About Us
 };
 
-   const handleContinueShopping = (e) => {
-    e.preventDefault();
+const handleContinueShopping = (e) => {
+    if (e) e.preventDefault(); // Check if event exists before calling preventDefault()
     setShowCart(false);
-  };
+};
+
 
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
-    setAddedToCart([...addedToCart, product.id]);
+    setAddedToCart([...addedToCart, product.name]);
   };
 
-//   useEffect(() => {
-//     const updatedDisabledProducts = addedToCart.filter(productId => {
-//       const item = cartItems.find(cartItem => cartItem.id === productId);
-//       return item && item.quantity > 0; // Keep disabled only if quantity > 0
-//     });
-//     setAddedToCart(updatedDisabledProducts);
-//   }, [cartItems]); // Run effect when cart updates
+  useEffect(() => {
+    if (!Array.isArray(cartItems)) {
+        console.error("cartItems is not an array:", cartItems);
+        return;
+    }
+    setAddedToCart(cartItems.map((item) => item.name));
+}, [cartItems]);
+
+  
 
     return (
         <div>
@@ -295,7 +298,7 @@ const handlePlantsClick = (e) => {
                 <img className="product-image" src={plant.image} alt={plant.name} />
                 <div className="product-title">{plant.name}</div>
                 {/*Similarly like the above plant.name show other details like description and cost*/}
-                <button  className="product-button" onClick={() => handleAddToCart(plant)}>Add to Cart</button>
+                <button  className="product-button" onClick={() => handleAddToCart(plant)} disabled={addedToCart.includes(plant.name)}>{addedToCart.includes(plant.name) ? "Added" : "Add to Cart"}</button>
             </div>
             ))}
         </div>
